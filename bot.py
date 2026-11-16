@@ -8,10 +8,9 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, Con
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_KEY")
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-2.5-flash"
 URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={GEMINI_API_KEY}"
 
-# Mini servidor para que Render no mate el bot
 app_web = Flask(__name__)
 @app_web.route("/")
 def home():
@@ -35,10 +34,10 @@ async def responder(update: Update, context: ContextTypes.DEFAULT_TYPE):
             texto = resultado["candidates"][0]["content"]["parts"][0]["text"]
             await update.message.reply_text(texto)
         else:
-            await update.message.reply_text("Google no contestó, intenta de nuevo en un ratito.")
+            await update.message.reply_text(f"Error de Google: {r.status_code} - {str(resultado)[:400]}")
             print(resultado)
     except Exception as e:
-        await update.message.reply_text("Se atoró Google, intenta de nuevo en un ratito.")
+        await update.message.reply_text(f"Se atoró: {e}")
         print(f"Error: {e}")
 
 if __name__ == "__main__":
